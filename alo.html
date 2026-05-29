@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新春尋寶趣 - 尋找散落的黃金福袋！</title>
+    <style>
+        :root {
+            --primary-red: #d32f2f;
+            --dark-red: #8b0000;
+            --gold: #ffb703;
+            --light-gold: #ffe169;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background-color: #ffebee;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        h1 {
+            color: var(--primary-red);
+            margin: 0 0 5px 0;
+            font-size: 2.2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .desc {
+            color: #555;
+            margin: 5px 0 15px 0;
+            font-size: 1.1rem;
+        }
+
+        /* 計分板 */
+        .score-board {
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: white;
+            color: #333;
+            padding: 10px 25px;
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border: 2px solid var(--primary-red);
+            margin-bottom: 15px;
+            z-index: 10;
+        }
+
+        /* ==========================================
+           主要尋寶遊戲舞台 (大活動橫幅/背景)
+           ========================================== */
+        .game-stage {
+            position: relative;
+            width: 900px;
+            height: 500px;
+            background-color: var(--primary-red);
+            /* 中式古典幾何格紋背景 */
+            background-image: 
+                linear-gradient(30deg, var(--dark-red) 12%, transparent 12.5%, transparent 87%, var(--dark-red) 87.5%, var(--dark-red)),
+                linear-gradient(150deg, var(--dark-red) 12%, transparent 12.5%, transparent 87%, var(--dark-red) 87.5%, var(--dark-red)),
+                linear-gradient(30deg, var(--dark-red) 12%, transparent 12.5%, transparent 87%, var(--dark-red) 87.5%, var(--dark-red)),
+                linear-gradient(150deg, var(--dark-red) 12%, transparent 12.5%, transparent 87%, var(--dark-red) 87.5%, var(--dark-red)),
+                linear-gradient(60deg, #9d0208 25%, transparent 25.5%, transparent 75%, #9d0208 75%, #9d0208),
+                linear-gradient(60deg, #9d0208 25%, transparent 25.5%, transparent 75%, #9d0208 75%, #9d0208);
+            background-size: 40px 70px;
+            background-position: 0 0, 0 0, 20px 35px, 20px 35px, 0 0, 20px 35px;
+            
+            border: 8px solid #fff;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        /* 舞台內的大標語裝飾 */
+        .stage-deco-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 183, 3, 0.15);
+            font-size: 8rem;
+            font-weight: 900;
+            pointer-events: none;
+        }
+
+        /* ==========================================
+           純 CSS 繪製的「黃金福袋」圖示
+           ========================================== */
+        .lucky-bag {
+            position: absolute;
+            width: 50px;
+            height: 55px;
+            cursor: pointer;
+            transition: transform 0.2s, filter 0.2s;
+            z-index: 5;
+        }
+
+        .lucky-bag:hover {
+            transform: scale(1.15) !important;
+            filter: drop-shadow(0 0 8px var(--light-gold));
+        }
+
+        /* 福袋身體 */
+        .bag-body {
+            position: absolute;
+            bottom: 0; width: 100%; height: 75%;
+            background: var(--gold);
+            border-radius: 15px 15px 10px 10px;
+            box-shadow: inset 0 -4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* 福袋袋口褶皺 */
+        .bag-top {
+            position: absolute;
+            top: 5px; left: 12.5%; width: 75%; height: 25%;
+            background: var(--light-gold);
+            border-radius: 50% 50% 0 0;
+        }
+
+        /* 福袋繩子 */
+        .bag-rope {
+            position: absolute;
+            top: 12px; left: 5%; width: 90%; height: 5px;
+            background: #d32f2f;
+            border-radius: 3px;
+        }
+
+        /* 福袋上的小「福」字 */
+        .bag-text {
+            position: absolute;
+            bottom: 4px; left: 0; width: 100%;
+            text-align: center;
+            color: #d32f2f;
+            font-size: 1.1rem;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        /* ==========================================
+           散落的位置分佈設定 (5個藏匿點)
+           ========================================== */
+        #bag1 { top: 40px;  left: 70px;  transform: rotate(-15deg) scale(0.9); }
+        #bag2 { top: 380px; left: 180px; transform: rotate(10deg) scale(1.1); }
+        #bag3 { top: 120px; left: 780px; transform: rotate(25deg) scale(0.8); }
+        #bag4 { top: 280px; left: 480px; transform: rotate(-5deg); }
+        #bag5 { top: 220px; left: 80px;  transform: rotate(180deg) scale(0.7); opacity: 0.85; } /* 倒掛隱藏版 */
+
+        /* 當物品被點擊尋獲後的樣式 */
+        .lucky-bag.found {
+            animation: foundDisappear 0.5s ease-in forwards;
+            pointer-events: none; /* 無法再被點擊 */
+        }
+
+        @keyframes foundDisappear {
+            0% { transform: scale(1) rotate(0); opacity: 1; }
+            50% { transform: scale(1.5) rotate(45deg); filter: brightness(2); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        /* 答對時在舞台留下的煙火漣漪特效 */
+        .ripple {
+            position: absolute;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            background: rgba(255, 183, 3, 0.2);
+            pointer-events: none;
+            z-index: 6;
+            animation: rippleEffect 0.6s ease-out forwards;
+        }
+
+        @keyframes rippleEffect {
+            0% { width: 0; height: 0; opacity: 1; }
+            100% { width: 80px; height: 80px; opacity: 0; }
+        }
+
+        /* ==========================================
+           過關獎勵彈窗
+           ========================================== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            color: #2a9d8f;
+            margin-top: 0;
+            font-size: 2rem;
+        }
+
+        .reward-sn {
+            font-size: 1.6rem;
+            color: var(--primary-red);
+            background: #fff0f1;
+            padding: 12px;
+            border: 3px dashed var(--primary-red);
+            margin: 20px 0;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .btn {
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(230,57,70,0.3);
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background: #b71c1c;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🧧 新春尋寶：金袋藏何處？ 🧧</h1>
+        <p class="desc">舞台中散落了 <b>5 個黃金福袋</b>，睜大雙眼把它們全都揪出來領大獎！</p>
+    </header>
+
+    <div class="score-board">
+        已尋獲福袋：<span id="found-count">0</span> / 5
+    </div>
+
+    <div class="game-stage" id="game-stage">
+        <div class="stage-deco-text">恭喜發財</div>
+
+        <div class="lucky-bag" id="bag1">
+            <div class="bag-top"></div><div class="bag-body"></div><div class="bag-rope"></div><div class="bag-text">福</div>
+        </div>
+        <div class="lucky-bag" id="bag2">
+            <div class="bag-top"></div><div class="bag-body"></div><div class="bag-rope"></div><div class="bag-text">福</div>
+        </div>
+        <div class="lucky-bag" id="bag3">
+            <div class="bag-top"></div><div class="bag-body"></div><div class="bag-rope"></div><div class="bag-text">福</div>
+        </div>
+        <div class="lucky-bag" id="bag4">
+            <div class="bag-top"></div><div class="bag-body"></div><div class="bag-rope"></div><div class="bag-text">福</div>
+        </div>
+        <div class="lucky-bag" id="bag5">
+            <div class="bag-top"></div><div class="bag-body"></div><div class="bag-rope"></div><div class="bag-text">福</div>
+        </div>
+    </div>
+
+    <div class="modal" id="reward-modal">
+        <div class="modal-content">
+            <h2>🎉 尋寶成功！</h2>
+            <p>厲害！隱藏得這麼深的黃金福袋都被你找齊了！</p>
+            <p>這是您的活動專屬好禮兌換序號：</p>
+            <div class="reward-sn">GOLDEN-BAG-888</div>
+            <button class="btn" onclick="restartGame()">再玩一次</button>
+        </div>
+    </div>
+
+    <script>
+        const totalBags = 5;
+        let foundBags = new Set();
+        const foundCountEl = document.getElementById('found-count');
+        const rewardModal = document.getElementById('reward-modal');
+        const gameStage = document.getElementById('game-stage');
+
+        // 為每個福袋綁定尋獲事件
+        document.querySelectorAll('.lucky-bag').forEach(bag => {
+            bag.addEventListener('click', function(e) {
+                const id = this.id;
+
+                if (!foundBags.has(id)) {
+                    foundBags.add(id);
+                    
+                    // 1. 更新數據顯示
+                    foundCountEl.textContent = foundBags.size;
+
+                    // 2. 觸發消失與金色火花特效
+                    this.classList.add('found');
+                    triggerRipple(e);
+
+                    // 3. 檢查是否全部找齊
+                    if (foundBags.size === totalBags) {
+                        setTimeout(() => {
+                            rewardModal.style.display = 'flex';
+                        }, 800);
+                    }
+                }
+                // 阻止點擊事件穿透到背景
+                e.stopPropagation();
+            });
+        });
+
+        // 點擊時產生光圈動畫
+        function triggerRipple(e) {
+            const rect = gameStage.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            
+            // 讓光圈中心對準鼠標點擊處
+            const radius = 40; 
+            ripple.style.left = (clickX - radius) + 'px';
+            ripple.style.top = (clickY - radius) + 'px';
+
+            gameStage.appendChild(ripple);
+
+            // 動態結束後自動移除該節點
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+
+        // 重新開始遊戲
+        function restartGame() {
+            foundBags.clear();
+            foundCountEl.textContent = '0';
+            rewardModal.style.display = 'none';
+            
+            // 還原所有福袋的狀態
+            document.querySelectorAll('.lucky-bag').forEach(bag => {
+                bag.classList.remove('found');
+            });
+        }
+    </script>
+</body>
+</html>
